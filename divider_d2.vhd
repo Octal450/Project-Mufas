@@ -12,7 +12,7 @@ end divider_d2;
 
 architecture arch of divider_d2 is
 
-constant div_value : integer := 199;
+constant div_value : integer := 99;
 signal counter : integer range 0 to div_value := 0;
 signal new_clk : STD_LOGIC := '0';
 

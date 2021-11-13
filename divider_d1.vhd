@@ -12,7 +12,7 @@ end divider_d1;
 
 architecture arch of divider_d1 is
 
-constant div_value : integer := 63;
+constant div_value : integer := 127;
 signal counter : integer range 0 to div_value := 0;
 signal new_clk : STD_LOGIC := '0';
 

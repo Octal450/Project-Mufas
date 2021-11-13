@@ -1,4 +1,4 @@
--- Advanced Turbo RGH Code for Matrix/Coolrunner
+-- Project Mufas RGH Code for Matrix/Coolrunner
 -- 15432, Octal450
 
 library IEEE;
@@ -12,7 +12,8 @@ entity post_proc is
 	Port (
 		POST : in STD_LOGIC;
 		CLK : in STD_LOGIC;
-		to_slow : out STD_LOGIC := '0';
+		CLK_D : in STD_LOGIC;
+		SLOW : out STD_LOGIC := '0';
 		DBG : out STD_LOGIC := '0';
 		RST : inout STD_LOGIC := 'Z'
 	);
@@ -21,14 +22,17 @@ end post_proc;
 architecture arch of post_proc is
 
 constant R_LEN : integer := 1;
-constant R_END : integer := 34721; -- Trinity 192MHz: 34721 and Corona 192MHz: 32711, Untested: Trinity 200MHz: 36167 and Corona 200MHz: 34074
-constant T_END : integer := R_END + 2;
+constant R_END : integer := 34721; -- Trinity 192MHz: 34721 and Corona 192MHz: 32710, Untested: Trinity 200MHz: 36167 and Corona 200MHz: 34073
+constant T_END : integer := 40000;
+constant S_DEL : integer := 490; -- Trinity: 490, Corona: 460
 
 constant post_rgh : integer := 11;
 constant post_max : integer := 15;
 signal cnt : integer range 0 to T_END := 0;
 signal stop : STD_LOGIC := '0';
 signal post_cnt : integer range 0 to post_max := 0;
+signal del_cnt : integer range 0 to S_DEL := 0;
+signal to_slow : STD_LOGIC := '0';
 
 begin
 
@@ -81,6 +85,24 @@ begin
 		to_slow <= '1';
 	else
 		to_slow <= '0';
+	end if;
+end process;
+
+-- delayer
+process (to_slow, CLK_D) is
+begin
+	if (to_slow = '0') then
+		SLOW <= '0';
+		del_cnt <= 0;
+	else
+		if (rising_edge(CLK_D)) then
+			if (del_cnt < S_DEL) then
+				del_cnt <= del_cnt + 1;
+				SLOW <= '0';
+			else
+				SLOW <= '1';
+			end if;
+		end if;
 	end if;
 end process;
 
